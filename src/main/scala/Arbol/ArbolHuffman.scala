@@ -44,5 +44,6 @@ case class ramaHuff(nodoIzq: ArbolHuffman, nodoDch: ArbolHuffman) extends ArbolH
 def main(): Unit= {
   val arbol: ArbolHuffman = ramaHuff(hojaHuff('s', 6), hojaHuff('a', 4))
   println(arbol.peso)
+
 }
 
