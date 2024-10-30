@@ -29,17 +29,20 @@ trait ArbolHuffman {
       case ramaHuff(nodoIzq: ArbolHuffman, nodoDch: ArbolHuffman) => bits.head match
         case 0 => decodificarAux(nodoIzq, bits.tail, listaChar)
         case 1 => decodificarAux(nodoDch, bits.tail, listaChar)
-    
+
     listaCharsACadena(decodificarAux(this, bits, Nil))
-    
-      
-      
+
+
+
 }
 case class hojaHuff(caracter: Char, pes: Int) extends ArbolHuffman
 
 case class ramaHuff(nodoIzq: ArbolHuffman, nodoDch: ArbolHuffman) extends ArbolHuffman
 
 
-
-
+@main
+def main(): Unit= {
+  val arbol: ArbolHuffman = ramaHuff(hojaHuff('s', 6), hojaHuff('a', 4))
+  println(arbol.peso)
+}
 
