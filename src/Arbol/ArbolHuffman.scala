@@ -52,10 +52,34 @@ trait ArbolHuffman {
 
     codificarAux(this, cadenaAListaChars(cadena), Nil).reverse
 
+
+
 }
+
+def ListaCharsADistFrec(listaChar: List[Char]): List[(Char, Int)] =
+  listaChar.groupBy(identity).map { case (key, caracteres) =>
+    (key, caracteres.size)
+  }.toList
+
+def DistribFrecAListaHojas(frec: List[(Char, Int)]): List[hojaHuff] =
+  frec.map { case (char, peso) => hojaHuff(char, peso) }.sortBy(_.peso)
+
+def creaRamaHuff(izq: ArbolHuffman, dch: ArbolHuffman): ramaHuff =
+  ramaHuff(izq, dch)
+
+def combinar(nodos: List[ArbolHuffman]): List[ArbolHuffman] = nodos match
+  case h :: Nil => nodos
+  case h :: t => {
+    creaRamaHuff(h, t.head) :: t.tail
+  }.sortBy(_.peso)
+
+
+//def crearArbolHuffman(cadena: String): ArbolHuffman =
+
 case class hojaHuff(caracter: Char, pes: Int) extends ArbolHuffman
 
 case class ramaHuff(nodoIzq: ArbolHuffman, nodoDch: ArbolHuffman) extends ArbolHuffman
+
 
 
 @main
@@ -64,6 +88,11 @@ def main(): Unit= {
   println(arbol.peso)
   println(arbol.codificar("ESO ES OSOS"))
 
-
+  val chars: List[Char] = List('a', 'a', 'b', 'a', 'c', 'b')
+  val distFrec: List[(Char, Int)] = ListaCharsADistFrec(chars)
+  val listaHojas: List[hojaHuff] = DistribFrecAListaHojas(distFrec)
+  val combinado1: List[ArbolHuffman] = combinar(listaHojas)
+  val combinado2: List[ArbolHuffman] = combinar(combinado1)
+  println(combinado2)
 }
 
