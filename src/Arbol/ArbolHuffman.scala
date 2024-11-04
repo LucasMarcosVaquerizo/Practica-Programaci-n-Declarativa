@@ -84,13 +84,17 @@ def crearArbolHuffman(cadena: String): ArbolHuffman =
   def repetirHasta(combinar: List[ArbolHuffman] => List[ArbolHuffman], esListaSingleton: List[ArbolHuffman] => Boolean)(listaHojas: List[hojaHuff]): ArbolHuffman =
     @tailrec
     def repetirHastaAux(combinar: List[ArbolHuffman] => List[ArbolHuffman], esListaSingleton: List[ArbolHuffman] => Boolean)(listaNodos: List[ArbolHuffman]): ArbolHuffman = listaNodos match
-      case Nil => listaNodos.head
+      case Nil => throw new NoSuchElementException("La cadena está vacía")
       case h :: t if esListaSingleton(listaNodos) => listaNodos.head
       case h :: t if !esListaSingleton(listaNodos) => repetirHastaAux(combinar, esListaSingleton)(combinar(listaNodos))
     repetirHastaAux(combinar, esListaSingleton)(listaHojas)
 
-  repetirHasta(combinar, esListaSingleton)(DistribFrecAListaHojas(ListaCharsADistFrec(cadena.toList)))
-
+  try
+    repetirHasta(combinar, esListaSingleton)(DistribFrecAListaHojas(ListaCharsADistFrec(cadena.toList)))
+  catch
+    case e: NoSuchElementException =>
+      println(e)
+      hojaHuff('\u0000', 0)
 
 def deArbolATabla(arbol: ArbolHuffman): TablaCodigos = arbol match
   case hojaHuff(char, _) => (char, Nil) :: Nil
@@ -144,7 +148,7 @@ def main(): Unit= {
   println(arbol.peso)
   println(arbol.codificar("ESO ES OSOS"))
 
-  val cadena: String = "ESO ES OSOS"
+  val cadena: String = ""
   val tree: ArbolHuffman = crearArbolHuffman(cadena)
   val tree1: ArbolHuffman = ArbolHuffman(cadena)
   println(tree)
