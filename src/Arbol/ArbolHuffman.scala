@@ -144,7 +144,7 @@ def main(): Unit= {
   println(arbol.peso)
   println(arbol.codificar("ESO ES OSOS"))
 
-  val cadena: String = "ESO ES OSOS"
+  val cadena: String = ""
   val tree: ArbolHuffman = crearArbolHuffman(cadena)
   val tree1: ArbolHuffman = ArbolHuffman(cadena)
   println(tree)
