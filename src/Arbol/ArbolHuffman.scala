@@ -51,9 +51,10 @@ trait ArbolHuffman {
 
 
     codificarAux(this, cadenaAListaChars(cadena), Nil).reverse
+}
 
-
-
+object ArbolHuffman {
+  def apply(cadena: String): ArbolHuffman = crearArbolHuffman(cadena)
 }
 
 def crearArbolHuffman(cadena: String): ArbolHuffman =
@@ -105,6 +106,8 @@ def main(): Unit= {
 
   val cadena: String = "ESO ES OSOS"
   val tree: ArbolHuffman = crearArbolHuffman(cadena)
+  val tree1: ArbolHuffman = ArbolHuffman(cadena)
   println(tree)
+  println(tree1)
 }
 
