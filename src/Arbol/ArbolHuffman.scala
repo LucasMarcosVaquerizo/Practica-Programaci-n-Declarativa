@@ -4,7 +4,7 @@ import scala.annotation.tailrec
 import scala.jdk.CollectionConverters.*
 
 type Bit = 0 | 1
-
+type TablaCodigos = List[(Char, List[Bit])]
 
 trait ArbolHuffman {
   def peso: Int = this match
@@ -92,6 +92,46 @@ def crearArbolHuffman(cadena: String): ArbolHuffman =
   repetirHasta(combinar, esListaSingleton)(DistribFrecAListaHojas(ListaCharsADistFrec(cadena.toList)))
 
 
+def deArbolATabla(arbol: ArbolHuffman): TablaCodigos = arbol match
+  case hojaHuff(char, _) => (char, Nil) :: Nil
+  case ramaHuff(izq, dcha) => deArbolATabla(izq).map{
+    case (c, bits) => (c, 0 :: bits: List[Bit])
+  } ::: deArbolATabla(dcha).map{
+    case (c, bits) => (c, 1 :: bits: List[Bit])
+  }
+
+@tailrec
+def bitsDeCaracter(tabla: TablaCodigos)(char: Char): List[Bit] = tabla match
+    case Nil => Nil
+    case (c, bits) :: t if c == char => bits: List[Bit]
+    case (c, bits) :: t if c != char => bitsDeCaracter(t)(char)
+
+@tailrec
+def caracterDeBits(tabla: TablaCodigos)(bits: List[Bit]): Char = tabla match
+    case Nil => '\u0000'
+    case (c, b) :: t if b == bits => c: Char
+    case (c, b) :: t if b != bits => caracterDeBits(t)(bits)
+
+
+def codificar(tabla: TablaCodigos)(cadena: String): List[Bit] =
+  @tailrec
+  def codificarAux(tabla: TablaCodigos, chars_restantes: List[Char], bits_resultado: List[Bit]): List[Bit] = chars_restantes match
+    case Nil => bits_resultado
+    case h :: t => codificarAux(tabla, t, bits_resultado ::: bitsDeCaracter(tabla)(h))
+
+  codificarAux(tabla, cadena.toList, Nil)
+
+
+def decodificar(tabla: TablaCodigos)(bits: List[Bit]): String =
+  @tailrec
+  def decodificarAux(tabla: TablaCodigos, bits_restantes: List[Bit], chars_resultado: List[Char], bits_palabra: List[Bit]): List[Char] = bits_restantes match
+    case Nil => chars_resultado
+    case h :: t if caracterDeBits(tabla)(bits_palabra :+ h) == '\u0000' => decodificarAux(tabla, t, chars_resultado, bits_palabra :+ h)
+    case h :: t if caracterDeBits(tabla)(bits_palabra :+ h) != '\u0000' => decodificarAux(tabla, t, chars_resultado :+ caracterDeBits(tabla)(bits_palabra :+ h), Nil)
+
+  decodificarAux(tabla, bits, Nil, Nil).mkString
+
+
 case class hojaHuff(caracter: Char, pes: Int) extends ArbolHuffman
 
 case class ramaHuff(nodoIzq: ArbolHuffman, nodoDch: ArbolHuffman) extends ArbolHuffman
@@ -109,5 +149,14 @@ def main(): Unit= {
   val tree1: ArbolHuffman = ArbolHuffman(cadena)
   println(tree)
   println(tree1)
+
+  val tabla: TablaCodigos = deArbolATabla(tree1)
+  println(tabla)
+
+  val bits: List[Bit] = codificar(tabla)(cadena)
+  println(bits)
+
+  val osos: String = decodificar(tabla)(bits)
+  println(osos)
 }
 
