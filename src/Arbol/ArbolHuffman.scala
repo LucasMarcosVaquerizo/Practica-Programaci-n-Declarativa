@@ -56,25 +56,40 @@ trait ArbolHuffman {
 
 }
 
-def ListaCharsADistFrec(listaChar: List[Char]): List[(Char, Int)] =
-  listaChar.groupBy(identity).map { case (key, caracteres) =>
-    (key, caracteres.size)
-  }.toList
+def crearArbolHuffman(cadena: String): ArbolHuffman =
+  def ListaCharsADistFrec(listaChar: List[Char]): List[(Char, Int)] =
+    listaChar.groupBy(identity).map { case (key, caracteres) =>
+      (key, caracteres.size)
+    }.toList
 
-def DistribFrecAListaHojas(frec: List[(Char, Int)]): List[hojaHuff] =
-  frec.map { case (char, peso) => hojaHuff(char, peso) }.sortBy(_.peso)
+  def DistribFrecAListaHojas(frec: List[(Char, Int)]): List[hojaHuff] =
+    frec.map { case (char, peso) => hojaHuff(char, peso) }.sortBy(_.peso)
 
-def creaRamaHuff(izq: ArbolHuffman, dch: ArbolHuffman): ramaHuff =
-  ramaHuff(izq, dch)
+  def creaRamaHuff(izq: ArbolHuffman, dch: ArbolHuffman): ramaHuff =
+    ramaHuff(izq, dch)
 
-def combinar(nodos: List[ArbolHuffman]): List[ArbolHuffman] = nodos match
-  case h :: Nil => nodos
-  case h :: t => {
-    creaRamaHuff(h, t.head) :: t.tail
-  }.sortBy(_.peso)
+  def combinar(nodos: List[ArbolHuffman]): List[ArbolHuffman] = nodos match
+    case Nil => throw RuntimeException("La lista a combinar no tiene elementos")
+    case h :: Nil => nodos
+    case h :: t => {
+      creaRamaHuff(h, t.head) :: t.tail
+    }.sortBy(_.peso)
 
+  def esListaSingleton(lista: List[ArbolHuffman]): Boolean = lista match
+    case Nil => throw RuntimeException("La lista a comprobar no tiene elementos")
+    case h :: Nil => true
+    case h :: t => false
 
-//def crearArbolHuffman(cadena: String): ArbolHuffman =
+  def repetirHasta(combinar: List[ArbolHuffman] => List[ArbolHuffman], esListaSingleton: List[ArbolHuffman] => Boolean)(listaHojas: List[hojaHuff]): ArbolHuffman =
+    @tailrec
+    def repetirHastaAux(combinar: List[ArbolHuffman] => List[ArbolHuffman], esListaSingleton: List[ArbolHuffman] => Boolean)(listaNodos: List[ArbolHuffman]): ArbolHuffman = listaNodos match
+      case Nil => listaNodos.head
+      case h :: t if esListaSingleton(listaNodos) => listaNodos.head
+      case h :: t if !esListaSingleton(listaNodos) => repetirHastaAux(combinar, esListaSingleton)(combinar(listaNodos))
+    repetirHastaAux(combinar, esListaSingleton)(listaHojas)
+
+  repetirHasta(combinar, esListaSingleton)(DistribFrecAListaHojas(ListaCharsADistFrec(cadena.toList)))
+
 
 case class hojaHuff(caracter: Char, pes: Int) extends ArbolHuffman
 
@@ -88,11 +103,8 @@ def main(): Unit= {
   println(arbol.peso)
   println(arbol.codificar("ESO ES OSOS"))
 
-  val chars: List[Char] = List('a', 'a', 'b', 'a', 'c', 'b')
-  val distFrec: List[(Char, Int)] = ListaCharsADistFrec(chars)
-  val listaHojas: List[hojaHuff] = DistribFrecAListaHojas(distFrec)
-  val combinado1: List[ArbolHuffman] = combinar(listaHojas)
-  val combinado2: List[ArbolHuffman] = combinar(combinado1)
-  println(combinado2)
+  val cadena: String = "ESO ES OSOS"
+  val tree: ArbolHuffman = crearArbolHuffman(cadena)
+  println(tree)
 }
 
