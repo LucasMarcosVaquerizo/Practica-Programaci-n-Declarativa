@@ -172,19 +172,39 @@ def main(): Unit= {
   val arbol: ArbolHuffman = ramaHuff(hojaHuff('S', 4), ramaHuff(hojaHuff('O', 3), ramaHuff(hojaHuff('E', 2), hojaHuff(' ', 2))))
   println(arbol.peso)
   println(arbol.codificar("ESO ES OSOS"))
+  println(arbol.caracteres)
 
-  val cadena: String = ""
-  val tree: ArbolHuffman = crearArbolHuffman(cadena)
-  val tree1: ArbolHuffman = ArbolHuffman(cadena)
+  val cadena1: String = "Los lunes por la mañana me cuesta despertarme, pero los viernes tengo mucha más energía. "
+  val cadena2: String = "El resto de días de la semana no tengo problemas para despertarme."
+  val cadena3: String = "Estos días no me saltan las llamadas..."
+  val tree: ArbolHuffman = crearArbolHuffman(cadena1)
+  val tree1: ArbolHuffman = ArbolHuffman(cadena1)
+  val tree2: ArbolHuffman = crearArbolHuffman(cadena1 + cadena2)
+  val tree3: ArbolHuffman = crearArbolHuffman(cadena3)
+
   println(tree)
   println(tree1)
+  println(tree1.peso)
+  println(tree2.peso)
+  println(tree.caracteres)
+  println(tree2.caracteres)
 
-  val tabla: TablaCodigos = deArbolATabla(tree1)
-  println(tabla)
+  val tabla1: TablaCodigos = deArbolATabla(tree1)
+  println(tabla1)
+  val tabla2: TablaCodigos = deArbolATabla(tree2)
+  println(tabla2)
 
-  val bits: List[Bit] = codificar(tabla)(cadena)
+  val bits: List[Bit] = codificar(tabla1)(cadena1)
   println(bits)
+  val bits2: List[Bit] = codificar(tabla2)(cadena1 + cadena2)
+  println(bits2)
+  val bits3: List[Bit] = codificar(tabla2)(cadena3) //Utilizamos la misma tabla que para el tree2(formado por cadena1 y cadena2) para codificar la cadena3
+  println(bits2)
 
-  val osos: String = decodificar(tabla)(bits)
-  println(osos)
+  val ejemplo1: String = decodificar(tabla1)(bits)
+  println(ejemplo1)
+  val ejemplo2: String = decodificar(tabla2)(bits2)
+  println(ejemplo2)
+  val ejemplo3: String = decodificar(tabla2)(bits3)
+  println(ejemplo3)
 }
