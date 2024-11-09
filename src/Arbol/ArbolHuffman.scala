@@ -44,7 +44,9 @@ trait ArbolHuffman {
           case 0 => decodificarAux(nodoIzq, bits.tail, listaChar)
           case 1 => decodificarAux(nodoDch, bits.tail, listaChar)
 
-    listaCharsACadena(decodificarAux(this, bits, Nil))
+    listaCharsACadena(decodificarAux(this, bits, Nil)) match
+      case "" => println("La lista de bits que se ha intentado decodificar no corresponde a ningún texto"); ""
+      case s => s
 
 
   //Comprueba si el árbol contiene un caracter, útil para más adelante.
