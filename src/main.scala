@@ -10,7 +10,7 @@ def main(): Unit = {
     println("Creando un árbol con hojas ('S', 4), ('O', 3), ('E', 2), (' ', 2):")
     val arbol_osos: ArbolHuffman = ramaHuff(hojaHuff('S', 4), ramaHuff(hojaHuff('O', 3), ramaHuff(hojaHuff('E', 2), hojaHuff(' ', 2))))
     println("Peso del árbol: " + arbol_osos.peso)
-    println("Codificación del string 'ESO ES OSOS': " + arbol_osos.codificar("ESO ES OSOS"))
+    println("\nCodificación del string 'ESO ES OSOS': " + arbol_osos.codificar("ESO ES OSOS"))
 
     val osos: String = "ESO ES OSOS"
 
@@ -18,29 +18,29 @@ def main(): Unit = {
     val arbol_funcion: ArbolHuffman = crearArbolHuffman(osos)
     println(arbol_funcion)
 
-    println("Intentando crear un árbol a partir del string 'ESO ES OSOS' con el constructor del companion object: ")
+    println("\nIntentando crear un árbol a partir del string 'ESO ES OSOS' con el constructor del companion object: ")
     val arbol_companion: ArbolHuffman = ArbolHuffman(osos)
     println(arbol_companion)
 
     val cadena_vacia: String = ""
-    println("Intentando crear un árbol a partir de una cadena vacía: ")
+    println("\nIntentando crear un árbol a partir de una cadena vacía: ")
     val arbol_vacio: ArbolHuffman = ArbolHuffman(cadena_vacia)
 
     println("\nCodificando el texto 'ESO ES OSOS' a partir de su árbol:")
     val listaBitsOsos: List[Bit] = arbol_osos.codificar(osos)
     println(listaBitsOsos)
 
-    println("Intentando codificar el texto 'HOLA' a partir del árbol anterior:")
+    println("\nIntentando codificar el texto 'HOLA' a partir del árbol anterior:")
     val hola: String = "HOLA"
     println(arbol_osos.codificar(hola))
 
-    println("Intentando codificar una cadena vacía a partir del árbol anterior:")
+    println("\nIntentando codificar una cadena vacía a partir del árbol anterior:")
     println(arbol_osos.codificar(cadena_vacia))
 
     println("\nDecodificando la lista de bits del texto anterior a partir de su árbol:")
     println(arbol_osos.decodificar(listaBitsOsos))
 
-    println("Intentando decodificar una lista vacía a partir del árbol anterior:")
+    println("\nIntentando decodificar una lista vacía a partir del árbol anterior:")
     val lista_vacia: List[Bit] = List()
     println(arbol_osos.decodificar(lista_vacia))
 
@@ -56,11 +56,11 @@ def main(): Unit = {
     println(codificaTabla(osos))
 
 
-    println("Intentando codificar el texto 'HOLA' a partir de la función anterior:")
+    println("\nIntentando codificar el texto 'HOLA' a partir de la función anterior:")
     println(codificaTabla(hola))
 
 
-    println("Intentando codificar una cadena vacía a partir de la función anterior:")
+    println("\nIntentando codificar una cadena vacía a partir de la función anterior:")
     println(codificaTabla(cadena_vacia))
 
 
@@ -70,7 +70,7 @@ def main(): Unit = {
     println("Decodificando la lista de bits correspondiente al texto 'ESO ES OSOS' a partir de la función anterior:")
     println(decodificaTabla(listaBitsOsos))
 
-    println("Intentando decodificar una lista vacía a partir de la función anterior:")
+    println("\nIntentando decodificar una lista vacía a partir de la función anterior:")
     println(decodificaTabla(lista_vacia))
     menu_principal()
 
@@ -96,9 +96,11 @@ def main(): Unit = {
     def decodificar_tabla(tabla: TablaCodigos, arbol: ArbolHuffman): Unit =
       println("Introduce los bits a decodificar (formato todo junto, solo unos y ceros):")
       val bits: List[Bit] = stringToBits(scala.io.StdIn.readLine()).getOrElse(Nil)
-
-      val texto_decodificado: String = decodificar(tabla)(bits).mkString("[", "", "]")
-      println(s"El texto decodificado es: $texto_decodificado")
+      bits match
+        case Nil => println("Por favor, introduce una lista de bits válida\n")
+        case _ =>
+          val texto_decodificado: String = decodificar(tabla)(bits).mkString("[", "", "]")
+          println(s"El texto decodificado es: $texto_decodificado")
       menu_tabla(tabla, arbol)
 
     @tailrec
@@ -132,11 +134,12 @@ def main(): Unit = {
     def decodificar_arbol(arbol: ArbolHuffman): Unit =
       println("Introduce los bits a decodificar (formato todo junto, solo unos y ceros):")
       val bits: List[Bit] = stringToBits(scala.io.StdIn.readLine()).getOrElse(Nil)
-
-      val texto_decodificado: String = arbol.decodificar(bits).mkString("[", "", "]")
-      println(s"El texto decodificado es: $texto_decodificado")
+      bits match
+        case Nil => println("Por favor, introduce una lista de bits válida\n")
+        case _ =>
+          val texto_decodificado: String = arbol.decodificar(bits).mkString("[", "", "]")
+          println(s"El texto decodificado es: $texto_decodificado")
       menu_arbol(arbol)
-
 
     @tailrec
     def menu_arbol(arbol: ArbolHuffman): Unit =
