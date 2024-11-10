@@ -37,13 +37,13 @@ trait ArbolHuffman {
   //Pasa de una lista de bits a un string, pasando por las ramas del arbol para sacar cada caracter.
   def decodificar(bits: List[Bit]): String =
     @tailrec
-    def decodificarAux(arbol: ArbolHuffman, bits: List[Bit], listaChar: List[Char]): List[Char] = bits match
-      case Nil => listaChar
-      case lista => arbol match
+    def decodificarAux(arbol: ArbolHuffman, bits: List[Bit], listaChar: List[Char]): List[Char] = arbol match
         case hojaHuff(caracter: Char, peso: Int) => decodificarAux(this, bits, listaChar :+ caracter)
-        case ramaHuff(nodoIzq: ArbolHuffman, nodoDch: ArbolHuffman) => bits.head match
-          case 0 => decodificarAux(nodoIzq, bits.tail, listaChar)
-          case 1 => decodificarAux(nodoDch, bits.tail, listaChar)
+        case ramaHuff(nodoIzq: ArbolHuffman, nodoDch: ArbolHuffman) => bits match
+          case Nil => listaChar
+          case lista => bits.head match
+            case 0 => decodificarAux(nodoIzq, bits.tail, listaChar)
+            case 1 => decodificarAux(nodoDch, bits.tail, listaChar)
 
     listaCharsACadena(decodificarAux(this, bits, Nil))
 
