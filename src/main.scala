@@ -1,5 +1,8 @@
 import Arbol.*
 
+import scala.annotation.tailrec
+import scala.util.{Failure, Success, Try}
+
 @main
 def main(): Unit = {
   def casos_prueba(): Unit =
@@ -69,10 +72,110 @@ def main(): Unit = {
 
     println("Intentando decodificar una lista vacía a partir de la función anterior:")
     println(decodificaTabla(lista_vacia))
-  casos_prueba()
+    menu_principal()
 
-  println("Herramienta para codificación de texto con árboles de Huffman")
-  println("Introduce el número correspondiente a la opción deseada:")
-  println("1 - Ver casos de prueba\n2 - Codificar texto personalizado\n3 - ")
+  def arbol_personalizado(): Unit =
+    def codificar_tabla(tabla: TablaCodigos, arbol: ArbolHuffman): Unit =
+      println("Introduce el texto a codificar:")
+      val texto: String = scala.io.StdIn.readLine()
+      val texto_codificado: String = codificar(tabla)(texto).mkString("[", "", "]")
+      println(s"El texto codificado es: $texto_codificado")
+      menu_tabla(tabla, arbol)
+
+    @tailrec
+    def menu_tabla(tabla: TablaCodigos, arbol: ArbolHuffman): Unit =
+      println("Elige qué hacer con la tabla:")
+      println("1 - Codificar un texto")
+      println("2 - Decodificar un texto")
+      println("3 - Volver")
+      val res = Try(scala.io.StdIn.readLine().toInt)
+      res match
+        case Failure(exception) => println("Por favor, introduce una opción válida\n"); menu_tabla(tabla, arbol)
+        case Success(value) => val opc_tabla: Int = value
+          opc_tabla match
+            case 1 => codificar_tabla(tabla, arbol)
+            case 2 => ()
+            case 3 => menu_arbol(arbol)
+            case _ => println("Por favor, introduce una opción válida\n") ; menu_tabla(tabla, arbol)
+
+
+    def mostrar_atributos(arbol: ArbolHuffman): Unit =
+      println(s"Peso total: ${arbol.peso}   Caracteres: ${arbol.caracteres}\nArbol: $arbol")
+      menu_arbol(arbol)
+
+    def codificar_arbol(arbol: ArbolHuffman): Unit =
+      println("Introduce el texto a codificar:")
+      val texto: String = scala.io.StdIn.readLine()
+      val texto_codificado: String = arbol.codificar(texto).mkString("[", "", "]")
+      println(s"El texto codificado es: $texto_codificado")
+      menu_arbol(arbol)
+
+//    def decodificar_arbol(arbol: ArbolHuffman): Unit =
+//      def stringToBits(cadena: String): Option[List[Bit]] =
+//        cadena.map {
+//          case '0' => Some(0: Bit)
+//          case '1' => Some(1: Bit)
+//          case _ => None
+//        }
+//
+//        if (bits.contains(None)) None else
+//          Some(bits.flatten.toList.map{
+//            case 0 => 0: Bit
+//            case 1 => 1: Bit
+//          })
+//
+//      println("Introduce los bits a decodificar (formato todo junto, solo unos y ceros):")
+//      val bits = stringToBits(scala.io.StdIn.readLine())
+//
+//      val texto_decodificado: String = arbol.decodificar(bits).mkString("[", "", "]")
+//      println(s"El texto decodificado es: $texto_decodificado")
+
+
+    @tailrec
+    def menu_arbol(arbol: ArbolHuffman): Unit =
+      println("Elige qué hacer con el árbol:")
+      println("1 - Ver atributos")
+      println("2 - Codificar otro texto")
+      println("3 - Decodificar una lista de bits con el árbol")
+      println("4 - Crear una tabla de datos a partir del árbol")
+      println("5 - Volver")
+      val res = Try(scala.io.StdIn.readLine().toInt)
+      res match
+        case Failure(exception) => println("Por favor, introduce una opción válida\n"); menu_arbol(arbol)
+        case Success(value) => val opc_arbol: Int = value
+          opc_arbol match
+            case 1 => mostrar_atributos(arbol)
+            case 2 => codificar_arbol(arbol)
+            case 3 => ()
+            case 4 => menu_tabla(deArbolATabla(arbol), arbol)
+            case 5 => menu_principal()
+            case _ => println("Por favor, introduce una opción válida\n") ; menu_arbol(arbol)
+
+    println("Introduce el texto a partir del cual se creará el árbol:")
+    val texto: String = scala.io.StdIn.readLine()
+    val arbol: ArbolHuffman = crearArbolHuffman(texto)
+    val texto_codificado: String = arbol.codificar(texto).mkString("[", "", "]")
+    println(s"El texto codificado es: $texto_codificado")
+    println(s"El árbol es: $arbol")
+    menu_arbol(arbol)
+
+
+  @tailrec
+  def menu_principal(): Unit =
+    println("Herramienta para codificación de texto con árboles de Huffman")
+    println("Introduce el número correspondiente a la opción deseada:")
+    println("1 - Ver casos de prueba\n2 - Crear árbol personalizado\n3 - Salir")
+
+    val res = Try(scala.io.StdIn.readLine().toInt)
+    res match
+      case Failure(exception) => println("Por favor, introduce una opción válida\n") ; menu_principal()
+      case Success(value) => val opc_menu_ppal: Int = value
+        opc_menu_ppal match
+          case 1 => casos_prueba()
+          case 2 => arbol_personalizado()
+          case 3 => ()
+          case _ => println("Por favor, introduce una opción válida\n") ; menu_principal()
+
+  menu_principal()
 }
 
