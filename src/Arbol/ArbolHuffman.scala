@@ -2,6 +2,7 @@ package Arbol
 
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters.*
+import scala.util.{Try, Success, Failure}
 
 type Bit = 0 | 1
 type TablaCodigos = List[(Char, List[Bit])]
@@ -44,9 +45,7 @@ trait ArbolHuffman {
           case 0 => decodificarAux(nodoIzq, bits.tail, listaChar)
           case 1 => decodificarAux(nodoDch, bits.tail, listaChar)
 
-    listaCharsACadena(decodificarAux(this, bits, Nil)) match
-      case "" => println("La lista de bits que se ha intentado decodificar no corresponde a ningún texto"); ""
-      case s => s
+    listaCharsACadena(decodificarAux(this, bits, Nil))
 
 
   //Comprueba si el árbol contiene un caracter, útil para más adelante.
@@ -120,7 +119,7 @@ def crearArbolHuffman(cadena: String): ArbolHuffman =
   def repetirHasta(combinar: List[ArbolHuffman] => List[ArbolHuffman], esListaSingleton: List[ArbolHuffman] => Boolean)(listaHojas: List[hojaHuff]): ArbolHuffman =
     @tailrec
     def repetirHastaAux(combinar: List[ArbolHuffman] => List[ArbolHuffman], esListaSingleton: List[ArbolHuffman] => Boolean)(listaNodos: List[ArbolHuffman]): ArbolHuffman = listaNodos match
-      case Nil => throw new NoSuchElementException("La cadena está vacía")
+      case Nil => throw new NoSuchElementException("La cadena está vacía, no se puede crear el árbol")
       case h :: t if esListaSingleton(listaNodos) => listaNodos.head
       case h :: t if !esListaSingleton(listaNodos) => repetirHastaAux(combinar, esListaSingleton)(combinar(listaNodos))
 
@@ -129,7 +128,7 @@ def crearArbolHuffman(cadena: String): ArbolHuffman =
   try
     repetirHasta(combinar, esListaSingleton)(DistribFrecAListaHojas(ListaCharsADistFrec(cadena.toList)))
   catch
-    case e: NoSuchElementException =>
+    case e: Exception =>
       println(e)
       hojaHuff('\u0000', 0) //Si se intenta crear un arbol con un caracter vacío(No un espacio) se retorna un arbol con una hoja que contiene el caracter nulo ('\u0000') y peso 0.
 
@@ -142,38 +141,47 @@ def deArbolATabla(arbol: ArbolHuffman): TablaCodigos = arbol match
     case (c, bits) => (c, 1 :: bits: List[Bit])
   }
 
-//Lee los bits que corresponden a cada caracter depeniendo de lo contenido en la tabla.
-@tailrec
-def bitsDeCaracter(tabla: TablaCodigos)(char: Char): List[Bit] = tabla match
-  case Nil => Nil
-  case (c, bits) :: t if c == char => bits
-  case (c, bits) :: t if c != char => bitsDeCaracter(t)(char)
-
-//Comprueba si una lista de bits se corresponde con la lista de bits asociada a algún caracter en la tabla de Códigos.(Esta función será útil más adelante).
-@tailrec
-def caracterDeBits(tabla: TablaCodigos)(bits: List[Bit]): Char = tabla match
-  case Nil => '\u0000'
-  case (c, b) :: t if b == bits => c
-  case (c, b) :: t if b != bits => caracterDeBits(t)(bits)
 
 //Encuentra la cadena de bits asociados a un caracter en una tabla de códigos.
 def codificar(tabla: TablaCodigos)(cadena: String): List[Bit] =
+
+  //Lee los bits que corresponden a cada caracter depeniendo de lo contenido en la tabla.
+  @tailrec
+  def bitsDeCaracter(tabla: TablaCodigos)(char: Char): List[Bit] = tabla match
+    case Nil => Nil
+    case (c, bits) :: t if c == char => bits
+    case (c, bits) :: t if c != char => bitsDeCaracter(t)(char)
+
   @tailrec
   def codificarAux(tabla: TablaCodigos, chars_restantes: List[Char], bits_resultado: List[Bit]): List[Bit] = chars_restantes match
     case Nil => bits_resultado
     case h :: t => codificarAux(tabla, t, bits_resultado ::: bitsDeCaracter(tabla)(h))
 
-  codificarAux(tabla, cadena.toList, Nil)
+  val resultado = Try(codificarAux(tabla, cadena.toList, Nil))
+  resultado match
+    case Success(valor) => valor
+    case Failure(exception) => println(exception); Nil
 
 //Convierte una cadena de bits en un string, leyendo cada caracter asiciado a su código de bits en una determinada tabla.
 def decodificar(tabla: TablaCodigos)(bits: List[Bit]): String =
+
+  //Comprueba si una lista de bits se corresponde con la lista de bits asociada a algún caracter en la tabla de Códigos.(Esta función será útil más adelante).
+  @tailrec
+  def caracterDeBits(tabla: TablaCodigos)(bits: List[Bit]): Char = tabla match
+    case Nil => '\u0000'
+    case (c, b) :: t if b == bits => c
+    case (c, b) :: t if b != bits => caracterDeBits(t)(bits)
+    
   @tailrec
   def decodificarAux(tabla: TablaCodigos, bits_restantes: List[Bit], chars_resultado: List[Char], bits_palabra: List[Bit]): List[Char] = bits_restantes match
     case Nil => chars_resultado
     case h :: t if caracterDeBits(tabla)(bits_palabra :+ h) == '\u0000' => decodificarAux(tabla, t, chars_resultado, bits_palabra :+ h)
     case h :: t if caracterDeBits(tabla)(bits_palabra :+ h) != '\u0000' => decodificarAux(tabla, t, chars_resultado :+ caracterDeBits(tabla)(bits_palabra :+ h), Nil)
 
-  decodificarAux(tabla, bits, Nil, Nil).mkString
+  val resultado = Try(decodificarAux(tabla, bits, Nil, Nil).mkString)
+  resultado match
+    case Success(valor) => valor
+    case Failure(exception) => println(exception); ""
 
 @main
 def main(): Unit = {
